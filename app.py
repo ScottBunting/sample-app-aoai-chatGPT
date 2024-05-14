@@ -853,6 +853,11 @@ async def send_chat_request(request_body, request_headers):
         raw_response = await azure_openai_client.chat.completions.with_raw_response.create(**model_args)
         response = raw_response.parse()
         apim_request_id = raw_response.headers.get("apim-request-id") 
+
+        # Check if response is empty or indicates no answer
+        if not response or 'I don’t know' in response.choices[0].message.content:
+            response.choices[0].message.content = "I'm sorry, I couldn't find an answer to your question. Could you please rephrase it?"
+
     except Exception as e:
         logging.exception("Exception in send_chat_request")
         raise e
